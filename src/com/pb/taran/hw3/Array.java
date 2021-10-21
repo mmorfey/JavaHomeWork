@@ -13,8 +13,7 @@ package com.pb.taran.hw3;
 import java.util.Arrays;
 import java.util.Scanner;
 
-//Создайте класс Array в пакете hw3.
-public class Array {
+public class Array {    //Создайте класс Array в пакете hw3.
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
 
@@ -37,8 +36,7 @@ public class Array {
         }
         System.out.println();
         //Подсчитать сумму всех элементов массива и вывести ее на экран.
-        //Подсчитать и вывести на экран количество положительных элементов.
-        System.out.println("Array sum (stream): " + Arrays.stream(arrayList).sum());
+       System.out.println("Array sum (stream): " + Arrays.stream(arrayList).sum());
 
         int counter = 0;
         int sum = 0;
@@ -49,7 +47,7 @@ public class Array {
 //            sum += arrayList[i];
 //        }
         for (int num : arrayList) { //foreach
-            if (num > 0) {
+            if (num > 0) {   //Подсчитать и вывести на экран количество положительных элементов.
                 counter += 1;
             }
             sum += num;
@@ -57,8 +55,8 @@ public class Array {
         System.out.println("Array sum (for): " + sum);
         System.out.println("Positive array numbers: " + counter);
 
-        //Произвести сортировку этого массива от меньшего к большему по алгоритму сортировки пузырьком. (https://en.wikipedia.org/wiki/Bubble_sort)
-        for (int i = 0; i < arrayList.length - 1; i++) {
+
+        for (int i = 0; i < arrayList.length - 1; i++) {    //Произвести сортировку этого массива от меньшего к большему по алгоритму сортировки пузырьком. (https://en.wikipedia.org/wiki/Bubble_sort)
             for (int j = 0; j < arrayList.length - i - 1; j++) {
                 if (arrayList[j] > arrayList[j + 1]) {
                     int temp = arrayList[j];
