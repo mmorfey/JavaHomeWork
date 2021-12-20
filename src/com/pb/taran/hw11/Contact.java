@@ -1,12 +1,13 @@
 package com.pb.taran.hw11;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Contact {
     private String fullName;
     private String birthDate;
     private String address;
-    private String[] phones;
+    private ArrayList<String> phoneNumbers;
 
     public Contact() {
     }
@@ -15,6 +16,7 @@ public class Contact {
         this.fullName = fullName;
         this.birthDate = birthDate;
         this.address = address;
+        this.phoneNumbers = new ArrayList<>();
     }
 
     public String getAddress() {
@@ -29,13 +31,21 @@ public class Contact {
         return fullName;
     }
 
+    public ArrayList<String> getPhoneNumbers() {
+        return phoneNumbers;
+    }
+
+    public void addPhone(String phoneNumber) {
+        this.phoneNumbers.add(phoneNumber);
+    }
+
     @Override
     public String toString() {
-        return "{" +
+        return "Contact{" +
                 "fullName='" + fullName + '\'' +
                 ", birthDate='" + birthDate + '\'' +
                 ", address='" + address + '\'' +
-                ", phones=" + Arrays.toString(phones) +
+                ", phoneNumbers=" + phoneNumbers +
                 '}';
     }
 }

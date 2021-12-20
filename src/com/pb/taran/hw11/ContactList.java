@@ -26,8 +26,13 @@ public class ContactList {
     }
 
     public void print() {
-        for(Contact contact: list) {
-            System.out.println(contact);
+        if (list.size() == 0) {
+            System.out.println("Список контактов пуст");
+        }
+        else {
+            for (Contact contact: list) {
+                System.out.println(contact);
+            }
         }
     }
 }
