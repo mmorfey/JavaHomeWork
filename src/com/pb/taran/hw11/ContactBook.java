@@ -2,6 +2,7 @@ package com.pb.taran.hw11;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,7 +17,8 @@ import java.util.Scanner;
 public class ContactBook {
     public static void main(String[] args) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ContactList contacts = new ContactList();
+        objectMapper.registerModule(new JavaTimeModule());
+        ContactList contacts;
         String filePath = "contacts.json";
         String[] mainMenuText = {
                 "1 - добавить контакт",
@@ -26,7 +28,10 @@ public class ContactBook {
                 "5 - загрузить контакты из файла",
                 "0 - завершить работу"
         };
-        int usersChoice = 0;
+        int usersChoice;
+
+        contacts = loadContactsFromFile(filePath, objectMapper);
+        System.out.println();
 
         do {
             usersChoice = getMenuChoice(mainMenuText);
@@ -44,13 +49,10 @@ public class ContactBook {
                     break;
                 case 4: saveContactsToFile(contacts, filePath, objectMapper);
                     break;
-                case 5: ContactList tempContactList = loadContactsFromFile(filePath, objectMapper);
-                    if (tempContactList != null) {
-                        contacts = tempContactList;
-                    }
+                case 5: contacts = loadContactsFromFile(filePath, objectMapper);
                     break;
                 default:
-                    System.out.println("Неизвестный код меню!");
+                    System.out.println("Неизвестный код главного меню!");
             }
             System.out.println();
         }
@@ -88,11 +90,12 @@ public class ContactBook {
 
         do {
             String phone = titledScan(console, "Введите номер телефона:");
-            contact.addPhone(phone);
-            choice = titledScan(console, "Чтобы добавить еще номер, введите +, иначе - контакт готов");
+            contact.addPhoneNumber(phone);
+            choice = titledScan(console, "Чтобы добавить еще номер, введите +");
         }
         while(choice.equals("+"));
         contacts.add(contact);
+        System.out.println("Контакт добавлен");
     }
 
     public static String titledScan(Scanner input, String title) {
@@ -102,14 +105,162 @@ public class ContactBook {
 
     public static void findContact(ContactList contacts) {
         Scanner console = new Scanner(System.in);
-        System.out.println("поиск контакта");
+        Contact contact = null;
+        String[] findMenuText = {
+                "1 - найти контакт по № в списке",
+                "2 - найти контакт по ФИО",
+                "3 - найти контакт по дате рождения",
+                "4 - найти контакт по адресу",
+                "5 - найти контакт по номеру телефона",
+                "0 - в главное меню"
+        };
+        int usersChoice = getMenuChoice(findMenuText);
+        System.out.println();
+
+        switch (usersChoice) {
+            case 0: break;
+            case 1: String number = titledScan(console, "Введите № в списке:");
+                contact = contacts.find("number", number);
+                break;
+            case 2: String name = titledScan(console, "Введите ФИО:");
+                contact = contacts.find("name", name);
+                break;
+            case 3: String birth = titledScan(console, "Введите дату рождения:");
+                contact = contacts.find("birth", birth);
+                break;
+            case 4: String address = titledScan(console, "Введите новый адрес:");
+                contact = contacts.find("address", address);
+                break;
+            case 5: String phone = titledScan(console, "Введите номер телефона:");
+                contact = contacts.find("phone", phone);
+                break;
+            default:
+                System.out.println("Неизвестный код меню поиска!");
+        }
+        System.out.println();
+
+        if (contact == null) {
+            System.out.println("Ничего не найдено!");
+            return;
+        }
+
+        String[] contactMenuText = {
+                "1 - редактировать контакт",
+                "2 - удалить контакт",
+                "0 - в главное меню"
+        };
+        usersChoice = getMenuChoice(contactMenuText);
+        System.out.println();
+
+        switch (usersChoice) {
+            case 0: break;
+            case 1: editContact(contact);
+                break;
+            case 2: delContact(contacts, contact);
+                break;
+            default:
+                System.out.println("Неизвестный код меню контакта!");
+        }
+        System.out.println();
     }
 
     public static void showAllContacts(ContactList contacts) {
-        contacts.print();
+        if (contacts.length() == 0) {
+            System.out.println("Список контактов пуст");
+            return;
+        }
+
+        String[] showListMenuText = {
+                "1 - вывести список контактов как есть",
+                "2 - вывести список контактов, сортированный по ФИО",
+                "3 - вывести список контактов, сортированный по дате рождения",
+                "4 - вывести список контактов, сортированный по адресу",
+                "5 - вывести список контактов, сортированный по дате изменения",
+                "0 - в главное меню"
+        };
+        int usersChoice = getMenuChoice(showListMenuText);
+        ContactList showList = new ContactList(contacts);
+        System.out.println();
+
+        switch (usersChoice) {
+            case 0: return;
+            case 1: break;
+            case 2: showList.sort("name"); break;
+            case 3: showList.sort("birth"); break;
+            case 4: showList.sort("address"); break;
+            case 5: showList.sort("datetime"); break;
+            default:
+                System.out.println("Неизвестный код меню списка контактов!");
+        }
+        System.out.println();
+        System.out.println("Список контактов:");
+        showList.print();
+    }
+
+    public static void editContact(Contact contact) {
+        System.out.println(contact);
+
+        String[] editMenuText = {
+                "1 - редактировать ФИО",
+                "2 - редактировать дату рождения",
+                "3 - редактировать адрес",
+                "4 - добавить номер телефона",
+                "5 - удалить номер телефона",
+                "0 - в главное меню"
+        };
+        int usersChoice = getMenuChoice(editMenuText);
+        System.out.println();
+
+        Scanner console = new Scanner(System.in);
+        String choice;
+
+        switch (usersChoice) {
+            case 0: break;
+            case 1: String fullName = titledScan(console, "Введите новое ФИО контакта:");
+                contact.setFullName(fullName);
+                break;
+            case 2: String dateBirth = titledScan(console, "Введите новую дату рождения:");
+                contact.setBirthDate(dateBirth);
+                break;
+            case 3: String address = titledScan(console, "Введите новый адрес:");
+                contact.setAddress(address);
+                break;
+            case 4:
+                do {
+                    String phone = titledScan(console, "Введите номер телефона:");
+                    contact.addPhoneNumber(phone);
+                    choice = titledScan(console, "Чтобы добавить еще номер, введите +");
+                }
+                while (choice.equals("+"));
+                break;
+            case 5:
+                do {
+                    String strIndex = titledScan(console, "Введите номер по счету в списке телефонов, который нужно удалить:");
+                    contact.delPhoneNumber(Integer.parseInt(strIndex) + 1);
+                    choice = titledScan(console, "Чтобы удалить еще номер, введите -");
+                }
+                while (choice.equals("-"));
+                break;
+            default:
+                System.out.println("Неизвестный код меню редактирования!");
+        }
+        System.out.println();
+    }
+
+    public static void delContact(ContactList contacts, Contact contact)  {
+        if (contacts.del(contact)) {
+            System.out.println("Контакт удален");
+        }
+        else {
+            System.out.println("Контакт не найден в списке");
+        }
     }
 
     public static void saveContactsToFile(ContactList contacts, String filePath, ObjectMapper mapper) throws JsonProcessingException {
+        if (contacts.length() == 0) {
+            System.out.println("Список контактов пуст, нечего сохранять");
+            return;
+        }
         String jsonAsString = mapper.writeValueAsString(contacts);
         Path path = Paths.get(filePath);
 
@@ -123,11 +274,11 @@ public class ContactBook {
 
     public static ContactList loadContactsFromFile(String filePath, ObjectMapper mapper) {
         Path path = Paths.get(filePath);
-        ContactList result = null;
+        ContactList result = new ContactList();
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String jsonString = reader.readLine();
-            System.out.println(jsonString);
+            // System.out.println(jsonString);
             if (jsonString != null) {
                 result = mapper.readValue(jsonString, ContactList.class);
                 System.out.println("Контакты успешно загружены из файла: " + filePath);
