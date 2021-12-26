@@ -92,45 +92,17 @@ public class ContactList {
     public void sort(String key) {
         switch (key) {
             case "name":
-                list.sort(new ContactByNameComparator());
+                list.sort(Comparator.comparing(Contact::getFullName));
                 break;
             case "birth":
-                list.sort(new ContactByBirthComparator());
+                list.sort(Comparator.comparing(Contact::getBirthDate));
                 break;
             case "address":
-                list.sort(new ContactByAddressComparator());
+                list.sort(Comparator.comparing(Contact::getAddress));
                 break;
             case "datetime":
-                list.sort(new ContactByDateTimeComparator());
+                list.sort(Comparator.comparing(Contact::getChangeTime));
                 break;
-        }
-    }
-
-    public static class ContactByNameComparator implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getFullName().compareTo(contact2.getFullName());
-        }
-    }
-
-    public static class ContactByBirthComparator implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getBirthDate().compareTo(contact2.getBirthDate());
-        }
-    }
-
-    public static class ContactByAddressComparator implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getAddress().compareTo(contact2.getAddress());
-        }
-    }
-
-    public static class ContactByDateTimeComparator implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getChangeTime().compareTo(contact2.getChangeTime());
         }
     }
 }

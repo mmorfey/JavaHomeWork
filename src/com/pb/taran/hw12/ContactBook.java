@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ContactBook {
@@ -19,23 +18,23 @@ public class ContactBook {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         ContactList contacts;
+        int usersChoice;
         String filePath = "contacts.json";
-        String[] mainMenuText = {
+
+        contacts = loadContactsFromFile(filePath, objectMapper);
+        System.out.println();
+
+        Menu mainMenu = new Menu(new String[] {
                 "1 - добавить контакт",
                 "2 - найти контакт",
                 "3 - вывести все контакты",
                 "4 - сохранить контакты в файл",
                 "5 - загрузить контакты из файла",
                 "0 - завершить работу"
-        };
-        int usersChoice;
-
-        contacts = loadContactsFromFile(filePath, objectMapper);
-        System.out.println();
+        });
 
         do {
-            usersChoice = getMenuChoice(mainMenuText);
-            System.out.println();
+            usersChoice = mainMenu.getUsersChoice();
 
             switch (usersChoice) {
                 case 0:
@@ -57,26 +56,6 @@ public class ContactBook {
             System.out.println();
         }
         while (usersChoice != 0);
-    }
-
-    public static int getMenuChoice(String[] menuText) {
-        Scanner console = new Scanner(System.in);
-        String choice;
-
-        ArrayList<String> possibleChoices = new ArrayList<>();
-
-        System.out.println("Выберите действие из списка (введите цифру):");
-        for (String menuItem: menuText) {
-            System.out.println(menuItem);
-            possibleChoices.add(menuItem.substring(0, 1));
-        }
-
-        do {
-            choice = console.nextLine();
-        }
-        while (!possibleChoices.contains(choice));
-
-        return Integer.parseInt(choice);
     }
 
     public static void addContact(ContactList contacts) {
@@ -106,16 +85,15 @@ public class ContactBook {
     public static void findContact(ContactList contacts) {
         Scanner console = new Scanner(System.in);
         Contact contact = null;
-        String[] findMenuText = {
+        Menu findContactMenu = new Menu(new String[] {
                 "1 - найти контакт по № в списке",
                 "2 - найти контакт по ФИО",
                 "3 - найти контакт по дате рождения",
                 "4 - найти контакт по адресу",
                 "5 - найти контакт по номеру телефона",
                 "0 - в главное меню"
-        };
-        int usersChoice = getMenuChoice(findMenuText);
-        System.out.println();
+        });
+        int usersChoice = findContactMenu.getUsersChoice();
 
         switch (usersChoice) {
             case 0: break;
@@ -144,13 +122,14 @@ public class ContactBook {
             return;
         }
 
-        String[] contactMenuText = {
+        System.out.println(contact);
+        System.out.println();
+
+        Menu contactActionMenu = new Menu(new String[] {
                 "1 - редактировать контакт",
                 "2 - удалить контакт",
-                "0 - в главное меню"
-        };
-        usersChoice = getMenuChoice(contactMenuText);
-        System.out.println();
+                "0 - в главное меню" });
+        usersChoice = contactActionMenu.getUsersChoice();
 
         switch (usersChoice) {
             case 0: break;
@@ -169,18 +148,17 @@ public class ContactBook {
             System.out.println("Список контактов пуст");
             return;
         }
+        ContactList showList = new ContactList(contacts);
 
-        String[] showListMenuText = {
+        Menu showContactsMenu = new Menu(new String[] {
                 "1 - вывести список контактов как есть",
                 "2 - вывести список контактов, сортированный по ФИО",
                 "3 - вывести список контактов, сортированный по дате рождения",
                 "4 - вывести список контактов, сортированный по адресу",
                 "5 - вывести список контактов, сортированный по дате изменения",
                 "0 - в главное меню"
-        };
-        int usersChoice = getMenuChoice(showListMenuText);
-        ContactList showList = new ContactList(contacts);
-        System.out.println();
+        });
+        int usersChoice = showContactsMenu.getUsersChoice();
 
         switch (usersChoice) {
             case 0: return;
@@ -198,18 +176,15 @@ public class ContactBook {
     }
 
     public static void editContact(Contact contact) {
-        System.out.println(contact);
-
-        String[] editMenuText = {
+        Menu editContactMenu = new Menu(new String[] {
                 "1 - редактировать ФИО",
                 "2 - редактировать дату рождения",
                 "3 - редактировать адрес",
                 "4 - добавить номер телефона",
                 "5 - удалить номер телефона",
                 "0 - в главное меню"
-        };
-        int usersChoice = getMenuChoice(editMenuText);
-        System.out.println();
+        });
+        int usersChoice = editContactMenu.getUsersChoice();
 
         Scanner console = new Scanner(System.in);
         String choice;
@@ -278,7 +253,7 @@ public class ContactBook {
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String jsonString = reader.readLine();
-            // System.out.println(jsonString);
+
             if (jsonString != null) {
                 result = mapper.readValue(jsonString, ContactList.class);
                 System.out.println("Контакты успешно загружены из файла: " + filePath);
